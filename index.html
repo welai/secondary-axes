@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第二中心线测试</title>
+</head>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<body>
+  <div class="container">
+    <div class="row" style="text-align: center;">
+      <h3>第二中心线计算器</h3>
+    </div>
+    <div class="row" style="margin-bottom:-8px;">
+      <div class="col s12">
+        <div class="input-field col s10">
+          <input id="hanzi-input" type="text" value="林">
+          <label for="hanzi-input">字</label>
+        </div>
+        <a class="waves-effect waves-light btn-large col s2" onclick="syncUI2Data()">更新</a>
+      </div>
+    </div>
+    <ul class="collapsible z-depth-0">
+      <li class="active">
+        <div class="col s12 collapsible-header" style="position:relative;">
+          <i class="material-icons">settings</i>设定
+          <span style="position:absolute;right:1em"><i class="material-icons">expand_more</i></span>
+        </div>
+        <div class="row collapsible-body">
+          <div class="col s12" style="margin-top: -16px;">
+            <div class="input-field col s8">
+              <input id="font-input" type="text">
+              <label for="font-input">参考字体</label>
+            </div>
+            <div class="input-field col s4">
+              <label>
+                <input id="showref-input" type="checkbox" checked="checked" onchange="syncUI2Data()"/>
+                <span>显示参考字</span>
+              </label>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="input-field col s6">
+              <input id="upm-input" type="number" value="1000">
+              <label for="upm-input">UPM</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="baseline-input" type="number" value="150">
+              <label for="baseline-input">基线高度</label>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="input-field col s6">
+              <input id="facew-input" type="number" value="96">
+              <label for="facew-input">字面率宽 %</label>
+            </div>
+            <div class="input-field col s6">
+              <input id="faceh-input" type="number" value="96">
+              <label for="faceh-input">字面率高 %</label>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="input-field col s4">
+              <input id="medw-input" type="number" value="40">
+              <label for="medw-input">中宫率宽 %</label>
+            </div>
+            <div class="input-field col s4">
+              <input id="medh-input" type="number" value="40">
+              <label for="medh-input">中宫率高 %</label>
+            </div>
+            <div class="input-field col s4">
+              <label>
+                <input id="overshoot-input" type="checkbox" checked="checked" onchange="syncUI2Data()"/>
+                <span>补偿缩放</span>
+              </label>
+            </div>
+          </div>
+          <div class="col s12" style="margin-bottom:12px;">
+            <div class="range-field col s12">
+              <input type="range" id="weightmix-input" value="0.5" min="0.1" max="0.9" step="0.01" oninput="syncUI2Data()"/>
+              <label for="weightmix-input" style="display:flex;">
+                <span>灰度优先</span>
+                <span style="margin-left:auto;">笔画均匀优先</span>
+              </label>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="range-field col s6">
+              <input type="range" id="hweight-input" value="0.2" min="0" max="0.4" step="0.01" oninput="syncUI2Data()"/>
+              <label for="hweight-input">左紧右松</label>
+            </div>
+            <div class="range-field col s6">
+              <input type="range" id="vweight-input" value="0.2" min="0" max="0.4" step="0.01" oninput="syncUI2Data()"/>
+              <label for="vweight-input">上紧下松</label>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <div id="em-box" class="em-box" style="margin-bottom:64px;">
+      <div id="face-box" class="face-box"></div>
+      <div id="glyph-box" class="glyph-box">林</div>
+      <div id="h-axes" class="medial-axes"></div>
+      <div id="v-axes" class="medial-axes"></div>
+      <div id="h1-val" class="axis-label">h1</div>
+      <div id="h2-val" class="axis-label">h2</div>
+      <div id="v1-val" class="axis-label">v1</div>
+      <div id="v2-val" class="axis-label">v2</div>
+      <div id="loading" class="preloader-wrapper big active" style="top:calc(50% - 32px)">
+        <div class="spinner-layer spinner-blue-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="page-footer teal">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">关于</h5>
+          <a class="grey-text text-lighten-4 modal-trigger" href="#usage-modal">介绍与使用方法</a>
+        </div>
+        <div class="col l4 offset-l2 s12">
+          <h5 class="white-text">链接</h5>
+          <ul>
+            <li><a class="grey-text text-lighten-3" href="http://www.next.zju.edu.cn/">浙江大学科技设计创新创业实验室（NEXT Lab）</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright" style="padding:0 64px;">
+        © 2021 NEXT Lab<a class="grey-text text-lighten-4 right" href="https://github.com/celestialphineas">Dev: Celestial Phineas</a>
+    </div>
+  </footer>
+  <div id="usage-modal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+      <h4>第二中心线计算器</h4>
+      <p>这是一个用第二中心线理论计算活字字体辅助线的简易工具，该工具未做移动端适配，请在PC上使用。</p>
+      <h5>本工具的使用</h5>
+      <p>在“字”输入框中输入您要计算的字，在“设定”窗格中输入字体的参数设定，单击“更新”按钮，下方预览窗格中就会出现计算所得的两组第二中心线。“设定”窗格中的内容对同一字体而言应当是固定的。预览底图的“参考字”与计算过程无关，仅供协助用户设定参数与验证计算有效性之用。</p>
+      <p>其中，“参考字体”输入框中可键入系统字体的名称，用以更改预览底图的参考字字体。去掉“显示参考字”的勾选可隐藏预览底图的参考字。</p>
+      <p>UPM（units per em）是该字体的全身单位数，也就是字身框宽度或高度所对应的数值。“基线高度”为字体降部（descender）的绝对值，在一个OpenType字体中，纵坐标零点通常是基线，汉字字身框底边常对应于降部。这两个数值不影响第二中心线的位置，只体现在参考线的数值换算。</p>
+      <p>字面率为字体字面框相对字身框（日：仮想ボディ）的比值。</p>
+      <p>中宫率定义为两组第二中心线相对字身框的比值。中宫设定越大，该值应越大。该设定一般不超过字面率的一半。“补偿缩放”考虑了第二中心线理论中的“互差”效果，会依字的结构疏密适当缩放第二中心线间距。</p>
+      <p>“灰度优先/笔画均匀优先”、“左紧右松”、“上紧下松”滑块会影响部件视觉重量估计，进而影响第二中心线的定位。“灰度优先”会在经营左右位置时适当考虑上下位置的灰度，经营上下亦然；“笔画均匀优先”倾向于仅考虑单方向笔画分布。“左紧右松”程度高的字体会低估左旁视觉重量，例如对楷体等字体可适当调高。“上紧下松”程度高的字体则会低估上冠视觉重量，导致重心稍高的效果。</p>
+      <p>对“互差”、“视觉重量”的解释，可参见下文对原理论的概述。</p>
+      <h5>何谓第二中心线？</h5>
+      <p>第二中心线理论由上海印刷技术研究所字体设计师谢培元、陈初伏（化名：平野、初伏）于1962年提出，原载于《印刷活字研究参考资料·第五辑》中《经营位置之一——第二中心线的运用》一篇。第二中心线理论探究了印刷活字中合体字的部件定位与结构统一问题。</p>
+      <p>文中将经过字身几何中心的水平与竖直参考线定义为“第一中心线”，而“第二中心线”定义为合体字部件中心所形成的参考线；举例来说，“林”字的第二中心线在其两竖附近，是一组两根竖直的第二中心线。与第一中心线所不同的是，第二中心线在不同字之间是游移的，而非固定的；举例来说，“纲”的第二中心线必然要比“刚”的靠左。</p>
+      <p>第二中心线理论认为，在同一字体中，第二中心线间距相对恒定，但容有±5%的互差，且该差距有特定趋势：内白大的字第二中心线间距会偏小，内白小的字第二中心线间距会偏大。文中经过测量验证了该结论。</p>
+      <p>理论还提出了确定第二中心线位置的方法：第二中心线到第一中心线的距离与其对应部件的视觉重量呈反比，即“杠杆原理”。但文中并未建模如何估计汉字部件的视觉重量。</p>
+      <p>为实现该工具从质量检测工具到生产辅助工具的转变，徐学成设计了在水平与竖直方向分别预设3组第二中心线的字稿格子，成文《漫话第二中心线》，发表于《印刷活字研究参考资料·第六辑》。</p>
+      <p>徐学成的文章同样指出了第二中心线理论的局限性：(1) 只适用于两部件构成的合体字，不适用于独体字、三合结构、包围结构等；(2) 第二中心线理论不解决重心定位问题；(3) 第二中心线互差的难以解释。</p>
+      <h5>对第二中心线理论的定量处理</h5>
+      <p>将“第二中心线间距”视作中文字体的内生参数，结合对汉字部件视觉重量的估计方法，就可以做到第二中心线位置的定量计算。</p>
+      <p>我们采用了一种朴素的图像处理方法估计汉字部件的视觉重量，并且对整体、横向笔画、纵向笔画做了分别估计，同时对数值做了规范化处理。尽管视觉重量计算使用思源黑体作为字形来源，但是在理论上，这种估计方法在任何宋体或黑体字上应用，所得到的结果都是接近的，对第二中心线计算结果影响不大。</p>
+      <p>在“互差”的处理上，当前建模仍较为随意（arbitrary），并非基于严格统计，但基于若干合理假设与经验。</p>
+      <p>该工具当前只考虑一级部件拆分的计算结果。对⿰结构的字，计算结果只有两根竖直方向的线定位部件；同理，对⿱结构的字，计算结果只有水平方向线定位部件；这两种情况中，另一组不定位部件的第二中心线仅间距有参考价值，位置仅仅是置中而不具备参考价值。对半包围结构的字，计算结果中水平与垂直方向的第二中心线都定位部件。</p>
+      <h5>讨论</h5>
+      <p>第二中心线理论提供了一种定量方法，可快速定位汉字部件位置、控制字体结构统一性。可以认为，它提供了传统书法“中宫”概念的一种良定义，尽管这一定义尚无法适用于全部汉字。</p>
+      <p>实践上，部件几何中心易受穿插特点影响，将本工具预测的参考线作为部件的视觉重心参考线去使用会更为合理。</p>
+      <p>在将本工具应用于您自己的字体项目时，您需要花费些时间调整设定参数，多试验一些字，特别是结构复杂的字，来摸清“中宫率”、“灰度优先/笔画均匀优先”、“左紧右松”、“上紧下松”这些参数的设定，因为这些参数对不同字体来说会非常不一样。</p>
+      <p>经试验，在充分调整参数后，该工具的预测结果基本合乎直觉与视觉规律，尽管在很多字的结果只能说差强人意，但足以辅助快速起稿、协助您发现部分字可能存在的结构问题。</p>
+      <p>适用性上，除宋体、黑体，该工具在正文用楷体、仿宋也可以取得不错的效果。对个别字而言，第二中心线的预测结果会明显失效，因为这些字背后有不浅的习惯因素。例如“仁”，“二”要写得扁宽一些，不得不占据理论上所不应该占据的大空间。或如“町”，从“丁”的字都会释放出一块便于识别的内白。但有趣的是，现代圆体的划时代之作，Naru（日：ナール），其“町”字造型，经测量就几乎完美契合第二中心线规律，格外挤压了“丁”的占据空间，不仅相较于中文字体、相较于其他日文字体，Naru在“町”字的处理也更为夸张、几何化（感谢韩泳思发现了这点）。从这些例子看，第二中心线在活字字形个性的维度上，存有相当的便宜空间。</p>
+      <p>总地来说，第二中心线的实际适用范围和效果较我们原本预期要好得多。能够将这样一种规律建模出来，不得不让人佩服上海老一辈设计师敏锐的直觉。</p>
+      <h5>联系方式</h5>
+      <p>如果您有任何想法、问题、心得，都很欢迎和我们交流，我们很期待可以获得反馈。欢迎访问我们<a href="http://www.next.zju.edu.cn/">实验室的主页</a>，也欢迎联系作者：celestialphineas [AT] outlook [DOT] com</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">好</a>
+    </div>
+  </div>
+</body>
+<style>
+.container {
+  width: 90%;
+  max-width: 600px;
+  padding-top: 32px;
+}
+
+.em-box {
+  outline: 1px black solid;
+  padding: 0;
+  position: relative;
+  text-align: center;
+  margin: 32px auto;
+}
+
+#em-box {
+  width: 400px; height: 400px;
+}
+
+.face-box {
+  outline: 1px gray solid;
+  position: absolute;
+}
+
+#face-box {
+  width: 384px; height: 384px;
+  top: 8px; left: 8px;
+}
+
+.glyph-box {
+  width: 100%; height: 100%;
+  position: absolute;
+  margin: 0px;
+
+  font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Hiragino Sans GB", STHeiti, "ST Heiti", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", SimHei;
+  font-weight: 100;
+  writing-mode: vertical-rl;
+  color: #00000022;
+  font-size: 400px;
+  line-height: 1em;
+  user-select: none;
+}
+
+.medial-axes {
+  position: absolute;
+  outline: 1px gray dashed;
+}
+
+#h-axes {
+  width: 384px; height: 160px;
+  left: 8px; top: 120px;
+}
+
+#v-axes {
+  width: 160px; height: 384px;
+  left: 120px; top: 8px;
+}
+
+.axis-label {
+  position: absolute;
+}
+#v1-val, #v2-val {
+  top: 100%;
+  text-align: center;
+}
+#h1-val, #h2-val {
+  width: 5em;
+  left: calc(-5em - 8px);
+  text-align: right;
+}
+</style>
+<script src="https://cdn.bootcdn.net/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+<script>M.AutoInit()</script>
+<script src="index.js"></script>
+</html>
