@@ -103,12 +103,12 @@
     <div id="em-box" class="em-box" style="margin-bottom:64px;">
       <div id="face-box" class="face-box"></div>
       <div id="glyph-box" class="glyph-box">林</div>
-      <div id="h-axes" class="medial-axes"></div>
-      <div id="v-axes" class="medial-axes"></div>
-      <div id="h1-val" class="axis-label">h1</div>
-      <div id="h2-val" class="axis-label">h2</div>
-      <div id="v1-val" class="axis-label">v1</div>
-      <div id="v2-val" class="axis-label">v2</div>
+      <div id="h-axes" class="medial-axes gray-out"></div>
+      <div id="v-axes" class="medial-axes gray-out"></div>
+      <div id="h1-val" class="axis-label gray-out">h1</div>
+      <div id="h2-val" class="axis-label gray-out">h2</div>
+      <div id="v1-val" class="axis-label gray-out">v1</div>
+      <div id="v2-val" class="axis-label gray-out">v2</div>
       <div id="loading" class="preloader-wrapper big active" style="top:calc(50% - 32px)">
         <div class="spinner-layer spinner-blue-only">
           <div class="circle-clipper left">
@@ -249,6 +249,10 @@
   width: 5em;
   left: calc(-5em - 8px);
   text-align: right;
+}
+
+.gray-out {
+  opacity: 0.25;
 }
 </style>
 <script src="https://cdn.bootcdn.net/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
