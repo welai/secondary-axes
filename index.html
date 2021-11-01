@@ -105,10 +105,13 @@
       <div id="glyph-box" class="glyph-box">林</div>
       <div id="h-axes" class="medial-axes gray-out"></div>
       <div id="v-axes" class="medial-axes gray-out"></div>
+      <div id="bounds" class="component-bound gray-out"></div>
       <div id="h1-val" class="axis-label gray-out">h1</div>
       <div id="h2-val" class="axis-label gray-out">h2</div>
+      <div id="hb-val" class="bound-label gray-out">v2</div>
       <div id="v1-val" class="axis-label gray-out">v1</div>
       <div id="v2-val" class="axis-label gray-out">v2</div>
+      <div id="vb-val" class="bound-label gray-out">v2</div>
       <div id="loading" class="preloader-wrapper big active" style="top:calc(50% - 32px)">
         <div class="spinner-layer spinner-blue-only">
           <div class="circle-clipper left">
@@ -145,6 +148,7 @@
     <div class="modal-content">
       <h4>第二中心线计算器</h4>
       <p>这是一个用第二中心线理论计算活字字体辅助线的简易工具，该工具未做移动端适配，请在PC上使用。</p>
+      <p>其中：深灰色虚线与数值代表定位部件的第二中心线；浅灰色虚线与数值是不定位的第二中心线，仅作为中宫的参考与提示；淡灰色点线代表部件交界线。</p>
       <h5>本工具的使用</h5>
       <p>在“字”输入框中输入您要计算的字，在“设定”窗格中输入字体的参数设定，单击“更新”按钮，下方预览窗格中就会出现计算所得的两组第二中心线。“设定”窗格中的内容对同一字体而言应当是固定的。预览底图的“参考字”与计算过程无关，仅供协助用户设定参数与验证计算有效性之用。</p>
       <p>其中，“参考字体”输入框中可键入系统字体的名称，用以更改预览底图的参考字字体。去掉“显示参考字”的勾选可隐藏预览底图的参考字。</p>
@@ -165,6 +169,9 @@
       <p>我们采用了一种朴素的图像处理方法估计汉字部件的视觉重量，并且对整体、横向笔画、纵向笔画做了分别估计，同时对数值做了规范化处理。尽管视觉重量计算使用思源黑体作为字形来源，但是在理论上，这种估计方法在任何宋体或黑体字上应用，所得到的结果都是接近的，对第二中心线计算结果影响不大。</p>
       <p>在“互差”的处理上，当前建模仍较为随意（arbitrary），并非基于严格统计，但基于若干合理假设与经验。</p>
       <p>该工具当前只考虑一级部件拆分的计算结果。对⿰结构的字，计算结果只有两根竖直方向的线定位部件；同理，对⿱结构的字，计算结果只有水平方向线定位部件；这两种情况中，另一组不定位部件的第二中心线仅间距有参考价值，位置仅仅是置中而不具备参考价值。对半包围结构的字，计算结果中水平与垂直方向的第二中心线都定位部件。</p>
+      <h5>部件交界线的处理</h5>
+      <p>1995年，Wong和Hsu提出了一种<a href="https://ieeexplore.ieee.org/document/524809">基于物理建模的动态组字算法</a>，认为部件间隙处的假想微粒受到各部件的引力是平衡的，该引力与部件的视觉质量成正比，与距离平方成反比。</p>
+      <p>本计算器将这个结论与第二中心线相结合起来，用于计算部件交界线。经多字试验，视觉上比较经得住检验。Wong与Hsu的方法是否蕴含了第二中心线的结论，尚待数学证明。</p>
       <h5>讨论</h5>
       <p>第二中心线理论提供了一种定量方法，可快速定位汉字部件位置、控制字体结构统一性。可以认为，它提供了传统书法“中宫”概念的一种良定义，尽管这一定义尚无法适用于全部汉字。</p>
       <p>实践上，部件几何中心易受穿插特点影响，将本工具预测的参考线作为部件的视觉重心参考线去使用会更为合理。</p>
@@ -213,6 +220,7 @@
   width: 100%; height: 100%;
   position: absolute;
   margin: 0px;
+  overflow: hidden;
 
   font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN", "Microsoft YaHei", "Hiragino Sans GB", STHeiti, "ST Heiti", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei", SimHei;
   font-weight: 100;
@@ -225,7 +233,14 @@
 
 .medial-axes {
   position: absolute;
+  z-index: -1;
   outline: 1px gray dashed;
+}
+
+.component-bound {
+  position: absolute;
+  z-index: -1;
+  outline: 1px #cccccc dotted;
 }
 
 #h-axes {
@@ -238,14 +253,19 @@
   left: 120px; top: 8px;
 }
 
-.axis-label {
+#bounds {
+  width: 384px; height: 384px;
+  left: 8px; top: 8px;
+}
+
+.axis-label, .bound-label {
   position: absolute;
 }
-#v1-val, #v2-val {
+#v1-val, #v2-val, #vb-val {
   top: 100%;
   text-align: center;
 }
-#h1-val, #h2-val {
+#h1-val, #h2-val, #hb-val {
   width: 5em;
   left: calc(-5em - 8px);
   text-align: right;
@@ -253,6 +273,9 @@
 
 .gray-out {
   opacity: 0.25;
+}
+.bound-label.gray-out {
+  display: none;
 }
 </style>
 <script src="https://cdn.bootcdn.net/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
